@@ -13,19 +13,46 @@
     <div class="main-layout">
         <!-- SOL PANEL: NASIL OYNANIR -->
         <aside class="how-to-play">
-            <h2><i class="fas fa-info-circle"></i> Nasıl Oynanır?</h2>
+            <h2><i class="fas fa-info-circle"></i>How to Play?</h2>
             <ul>
-                <li>16 Karakteri 4'lü gruplar halinde <strong>benzer özelliklerine göre</strong> eşleştirin.</li>
-                <li>Her seferinde 4 kart seçip <b>Onayla</b>'ya tıklayın.</li>
-                <li>Dört grubu da doğru eşleştirirseniz oyunu kazanırsınız</li>
-                <li>Yanlış seçimde can kaybedersiniz (<span style="color:#dc3545;">♥</span>).</li>
-                <li>Tüm canlarınız biterse oyun sonlanır</li>
-                <li>Yeniden başlamak için <b>Yeni Oyun</b>'a basabilirsiniz.</li>
-                <li>Yardım almak için ipucu butonuna basabilirsiniz</li>
-                <li>İpucu seçili karakterleri sıfırlayıp aynı grup içerisindeki 2 karakteri otomatik olarak seçer.</li>
-                <li>Her yeni oyunda yalnızca 1 ipucu alma hakkı vardır.</li>
+                <li>Match 16 characters into groups of 4 based on their <strong>similar attributes</strong>.</li>
+                <li>Select 4 cards at a time and click <b>Confirm</b>.</li>
+                <li>If you correctly match all four groups, you win the game.</li>
+                <li>You lose a life for each incorrect selection (<span style="color:#dc3545;">♥</span>).</li>
+                <li>If you lose all your lives, the game ends.</li>
+                <li>Click <b>New Game</b> to restart.</li>
+                <li>Press the hint button if you need help.</li>
+                <li>The hint will reset your current selection and automatically select 2 characters from the same group.</li>
+                <li>You can use only one hint per game.</li>
             </ul>
-        </aside>
+                <!-- Zorluk Seviyesi Seçimi -->
+                            <div class="difficulty-selector">
+                                <h3><i class="fas fa-cog"></i>Game Difficulty</h3>
+                                <div class="difficulty-options">
+                                    <label class="difficulty-option">
+                                        <input type="radio" name="difficulty" value="easy">
+                                        <span class="difficulty-label easy">
+                                            <i class="fas fa-star"></i> Easy
+                                            <small>Most Popular 50 Animes</small>
+                                        </span>
+                                    </label>
+                                    <label class="difficulty-option">
+                                        <input type="radio" name="difficulty" value="normal" checked>
+                                        <span class="difficulty-label normal">
+                                            <i class="fas fa-balance-scale"></i> Normal
+                                            <small>Most Popular 100 Animes</small>
+                                        </span>
+                                    </label>
+                                    <label class="difficulty-option">
+                                        <input type="radio" name="difficulty" value="hard">
+                                        <span class="difficulty-label hard">
+                                            <i class="fas fa-fire"></i> Hard
+                                            <small>All Animes</small>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </aside>
 
         <!-- ORTA PANEL: OYUN ALANI -->
         <div class="game-container">
@@ -40,17 +67,17 @@
 
         <!-- SAĞ PANEL: OYUN KONTROLLERİ -->
         <aside class="controls-panel">
-            <h2><i class="fas fa-sliders-h"></i> Oyun Kontrolleri</h2>
+            <h2><i class="fas fa-sliders-h"></i> Game Controls</h2>
             <div class="control-buttons-preview">
                 <button id="confirm-btn" class="game-btn confirm" disabled>
-                    <i class="fas fa-check"></i> Onayla
+                    <i class="fas fa-check"></i> Confirm
                 </button>
                 <button id="hint-btn" class="game-btn hint">
-                    <i class="fas fa-lightbulb"></i> İpucu
+                    <i class="fas fa-lightbulb"></i> Hint
                 </button>
                 <div id="hearts-container" style="text-align:center; margin-bottom:1rem;"></div>
                 <button id="newgame-btn" class="game-btn primary">
-                    <i class="fas fa-sync-alt"></i> Yeni Oyun
+                    <i class="fas fa-sync-alt"></i> New Game
                 </button>
             </div>
         </aside>

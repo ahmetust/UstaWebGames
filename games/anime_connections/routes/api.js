@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { loadCharactersFromJson } = require('../models/characters.js');
+const { loadHardCharactersFromJson, loadEasyCharactersFromJson, loadNormalCharactersFromJson } = require('../models/characters.js');
 const { listeleriSozlugaCevir } = require('../utils/helpers.js');
 const { yapSecimler } = require('../services/featureSelector.js');
 const { createCharacterGroups } = require('../services/characterGrouper.js');
@@ -8,14 +8,14 @@ const { dizi } = require('../config/tag_scoring.js');
 
 // Zorluk haritası
 const PUAN_TABLOSU = {
-  "puan2": "Kolay",
-  "puan3": "Kolay",
-  "puan4": "Orta",
-  "puan5": "Orta",
-  "puan6": "Zor",
-  "puan7": "Zor",
-  "puan8": "Çok Zor",
-  "puan9": "Çok Zor"
+  "puan2": "Easy",
+  "puan3": "Easy",
+  "puan4": "Normal",
+  "puan5": "Normal",
+  "puan6": "Hard",
+  "puan7": "Hard",
+  "puan8": "Hard",
+  "puan9": "Hard"
 };
 
 function getDifficultyByFeature(feature) {
@@ -28,7 +28,27 @@ function getDifficultyByFeature(feature) {
 // API endpoint to generate character groups
 router.get('/generate-groups', (req, res) => {
   try {
-    const characters = loadCharactersFromJson();
+    // Query parametresinden mod bilgisini al (varsayılan: hard)
+    const mode = req.query.mode || 'hard';
+    
+    // Mod türüne göre karakterleri yükle
+    let characters;
+    switch (mode) {
+      case 'easy':
+        characters = loadEasyCharactersFromJson();
+        console.log('Kolay mod aktif - Popüler karakterler yüklendi');
+        break;
+      case 'normal':
+        characters = loadNormalCharactersFromJson();
+        console.log('Normal mod aktif - Orta seviye karakterler yüklendi');
+        break;
+      case 'hard':
+      default:
+        characters = loadHardCharactersFromJson();
+        console.log('Zor mod aktif - Tüm karakterler yüklendi');
+        break;
+    }
+    
     if (characters.length === 0) {
       return res.status(500).json({ error: 'Karakter verileri yüklenemedi' });
     }
@@ -44,6 +64,8 @@ router.get('/generate-groups', (req, res) => {
     }
 
     res.json({
+      mode: mode,
+      totalCharacters: characters.length,
       selectedFeatures: secimler,
       groups: groups
     });

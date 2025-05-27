@@ -2,6 +2,7 @@ let selectedCards = [];
 let hintUsed = false;
 let characterDataMap = new Map();
 let mistakeCount = 0;
+let currentGameMode = 'normal'; // Default mod olarak normal yapıldı
 const MAX_MISTAKES = 5;
 const START_SCORE = 25;
 const PENALTY = 5;
@@ -9,16 +10,74 @@ const MAX_TIME = 180; // 3 dakika
 const MAX_BONUS = 30;
 let gameStartTime = null;
 
-
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("newgame-btn").addEventListener("click", resetGame);
   document.getElementById("confirm-btn").addEventListener("click", handleConfirm);
   document.getElementById("hint-btn").addEventListener("click", useHint);
+  
+  // Mod seçimi event listener'ları ekle
+  const difficultyRadios = document.querySelectorAll('input[name="difficulty"]');
+  difficultyRadios.forEach(radio => {
+    radio.addEventListener('change', handleDifficultyChange);
+  });
+  
   clearAndCustomizeConsole();
   resetGame();
 });
 
+function handleDifficultyChange(event) {
+  currentGameMode = event.target.value;
+  updateModeIndicator();
+  
+  // Oyun devam ediyorsa uyarı göster
+  const visibleCards = document.querySelectorAll("#group-container .card");
+  if (visibleCards.length > 0 && visibleCards.length < 16) {
+    Swal.fire({
+      icon: 'question',
+      title: 'Mode Changed',
+      text: 'The game is still ongoing. Do you want to start a new game?',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, New game',
+      cancelButtonText: 'No'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        resetGame();
+      }
+    });
+  } else {
+    // Oyun devam etmiyorsa direkt yeni oyun başlat
+    resetGame();
+  }
+}
 
+function updateModeIndicator() {
+  const modeIndicator = document.getElementById('mode-indicator');
+  if (modeIndicator) {
+    let modeText;
+    switch(currentGameMode) {
+      case 'easy':
+        modeText = 'Easy Mode';
+        break;
+      case 'normal':
+        modeText = 'Normal Mode';
+        break;
+      case 'hard':
+        modeText = 'Hard Mode';
+        break;
+      default:
+        modeText = 'Normal Mode';
+    }
+    modeIndicator.textContent = modeText;
+    modeIndicator.className = `mode-indicator ${currentGameMode}`;
+  }
+}
+
+function updateCharacterCount(count) {
+  const characterCount = document.getElementById('character-count');
+  if (characterCount) {
+    characterCount.textContent = `${count} karakter havuzundan`;
+  }
+}
 
 function resetGame() {
   mistakeCount = 0;
@@ -26,8 +85,9 @@ function resetGame() {
   hintUsed = false;
   selectedCards = [];
   gameStartTime = Date.now();
+  updateModeIndicator();
   loadCharacters();
-  updateHintButtonState(); // <-- burada çağır (veya loadCharacters sonunda)
+  updateHintButtonState();
 }
 
 function updateHintButtonState() {
@@ -43,36 +103,20 @@ function useHint() {
   const groupToVisibleNames = {};
   visibleNames.forEach(name => {
     const info = characterDataMap.get(name);
-    if (!info) return; // güvenlik!
+    if (!info) return;
     if (!groupToVisibleNames[info.groupInfo]) groupToVisibleNames[info.groupInfo] = [];
     groupToVisibleNames[info.groupInfo].push(name);
   });
 
-  // Ekranda en az 2 üyesi kalan grupları bul
   const availableGroups = Object.entries(groupToVisibleNames).filter(([_, names]) => names.length >= 2);
 
-  if (availableGroups.length === 0) {
-    Swal.fire({
-      icon: "info",
-      title: "İpucu Yok",
-      text: "İpucu verilecek grup kalmadı!",
-      timer: 1800,
-      showConfirmButton: false
-    });
-    return;
-  }
-
-  // Rastgele bir uygun grup seç
   const [groupKey, names] = availableGroups[Math.floor(Math.random() * availableGroups.length)];
 
-  // Önce mevcut seçimi temizle
   selectedCards = [];
   document.querySelectorAll(".card.selected").forEach(card => card.classList.remove("selected"));
 
-  // Seçilecek 2 karakter
   const [first, second] = names;
 
-  // Seçili kartlara ekle ve görselde seçili yap
   selectedCards.push(first, second);
   visibleCards.forEach(card => {
     if (card.dataset.name === first || card.dataset.name === second) {
@@ -81,11 +125,9 @@ function useHint() {
   });
 
   updateConfirmButtonState();
-
   hintUsed = true;
   updateHintButtonState();
 }
-
 
 function updateHearts() {
   const container = document.getElementById('hearts-container');
@@ -103,7 +145,7 @@ function clearAndCustomizeConsole() {
   console.clear();
   const originalLog = console.log;
   console.log = function (...args) {
-    if (typeof args[0] === "string" && args[0].startsWith("DOĞRU CEVAP:")) {
+    if (typeof args[0] === "string" && args[0].startsWith("True Answer:")) {
       originalLog(...args);
     }
   };
@@ -124,8 +166,8 @@ function handleCardClick(card) {
     if (selectedCards.length >= 4) {
       Swal.fire({
         icon: 'warning',
-        title: 'Uyarı',
-        text: 'En fazla 4 kart seçebilirsiniz!',
+        title: 'Warning',
+        text: 'You can select up to 4 cards!',
         showConfirmButton: false,
         timer: 1200
       }); 
@@ -140,9 +182,15 @@ function handleCardClick(card) {
 async function loadCharacters() {
   hintUsed = false;
   document.getElementById("hint-btn").disabled = true;
+  
   try {
-    const response = await fetch("/api/generate-groups?logOnly=final");
+    // Seçili moda göre API çağrısı yap
+    const response = await fetch(`/api/generate-groups?mode=${currentGameMode}&logOnly=final`);
     const data = await response.json();
+
+    // Mod ve karakter sayısı bilgilerini güncelle
+    updateModeIndicator();
+    updateCharacterCount(data.totalCharacters);
 
     const container = document.getElementById("group-container");
     const matchedContainer = document.getElementById("matched-groups");
@@ -158,17 +206,19 @@ async function loadCharacters() {
         characterDataMap.set(character.Name, {
           groupInfo: `${group.feature}:${group.value}`,
           imageUrl: character.Resimler,
-          difficulty: group.difficulty // Buradan!
+          difficulty: group.difficulty
         });
         return character;
       })
     );
 
+    // Kartları karıştır
     for (let i = allCharacters.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [allCharacters[i], allCharacters[j]] = [allCharacters[j], allCharacters[i]];
     }
 
+    // Kartları oluştur
     for (const character of allCharacters) {
       const card = document.createElement("div");
       card.className = "card";
@@ -197,7 +247,15 @@ async function loadCharacters() {
       card.addEventListener("click", () => handleCardClick(card));
     }
     updateHintButtonState();
-  } catch (err) {}
+  } catch (err) {
+    console.error('Error while loading characters:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'An error occurred while loading characters. Please try again.',
+      confirmButtonText: 'OK'
+    });
+  }
 }
 
 function getAllAnswersHTML() {
@@ -226,11 +284,7 @@ function getAllAnswersHTML() {
   return html;
 }
 
-
 function showAllAnswers() {
-  // Tüm grupları ve karakterleri göster
-  // characterDataMap ve data.groups üzerinden dönebilirsin
-  // Örnek basit bir gösterim:
   const matchedContainer = document.getElementById("matched-groups");
   matchedContainer.innerHTML = '';
 
@@ -275,28 +329,45 @@ function showAllAnswers() {
   }
 }
 
-
-
 function oyunBitirVePuaniGoster(kaybettiMi = false) {
   if (kaybettiMi) {
-    // Artık burada hiçbir bildirim gösterilmesin!!
     return;
   }
   const gameEndTime = Date.now();
   const elapsedSeconds = Math.floor((gameEndTime - gameStartTime) / 1000);
 
-  // Hız bonusu
   let timeBonus = Math.max(0, MAX_BONUS - Math.floor((elapsedSeconds / MAX_TIME) * MAX_BONUS));
 
-  // Puan hesabı
   let score = START_SCORE - (mistakeCount * PENALTY) + timeBonus;
   if (score < 0) score = 0;
 
+  let modeText;
+  switch(currentGameMode) {
+    case 'easy':
+      modeText = 'Easy Mode';
+      break;
+    case 'normal':
+      modeText = 'Normal Mode';
+      break;
+    case 'hard':
+      modeText = 'Hard Mode';
+      break;
+    default:
+      modeText = 'Normal Mod';
+  }
+
   Swal.fire({
-    icon: 'info',
-    title: 'Oyun Bitti!',
-    html: `<b>Puanınız:</b> ${score} <br><b>Süreniz:</b> ${elapsedSeconds} sn`,
-    confirmButtonText: 'Tamam'
+    icon: 'success',
+    title: 'Congratulations! You Finished the Game! 🎉',
+    html: `
+      <div style="text-align: center; margin: 1rem 0;">
+        <p><strong>Mode:</strong> ${modeText}</p>
+        <p><strong>Your Score:</strong> ${score}</p>
+        <p><strong>Time:</strong> ${elapsedSeconds} seconds</p>
+        <p><strong>Number of Mistakes:</strong> ${mistakeCount}</p>
+      </div>
+    `,
+    confirmButtonText: 'New Game'
   }).then(() => {
     resetGame();
   });
@@ -304,12 +375,10 @@ function oyunBitirVePuaniGoster(kaybettiMi = false) {
 
 
 function handleConfirm() {
-
   const groupValues = selectedCards.map(name => characterDataMap.get(name).groupInfo);
   const isMatch = groupValues.every(group => group === groupValues[0]);
 
   if (isMatch) {
-    // Mevcut doğru eşleşme kodu burada çalışmaya devam edecek
     const container = document.getElementById("group-container");
     const matchedContainer = document.getElementById("matched-groups");
     const groupInfo = groupValues[0];
@@ -318,14 +387,14 @@ function handleConfirm() {
     const value = groupInfo.substring(firstColonIndex + 1);
     const difficulty = characterDataMap.get(selectedCards[0]).difficulty;
 
-    console.log(`DOĞRU CEVAP: ${selectedCards.map((n, i) => `${i + 1}. ${n}`).join(", ")} - ${feature}: ${value}`);
+    console.log(`TRUE ANSWER: ${selectedCards.map((n, i) => `${i + 1}. ${n}`).join(", ")} - ${feature}: ${value}`);
 
     const matchDiv = document.createElement("div");
     matchDiv.className = "matched-group";
 
     const infoDiv = document.createElement("div");
     infoDiv.className = "feature-info";
-    infoDiv.textContent = `✔ ${feature} = ${value} (Zorluk: ${difficulty})`;
+    infoDiv.textContent = `✔ ${feature} = ${value} (Tag Difficulty: ${difficulty})`;
 
     const cardsDiv = document.createElement("div");
     cardsDiv.className = "matched-cards";
@@ -372,8 +441,8 @@ function handleConfirm() {
 
     Swal.fire({
       icon: 'success',
-      title: 'Tebrikler!',
-      text: 'Doğru grubu buldunuz 🎉',
+      title: 'Congratulations!',
+      text: 'You found the correct group 🎉',
       showConfirmButton: false,
       timer: 1200
     });
@@ -384,30 +453,45 @@ function handleConfirm() {
     return;
   }
 
-  // Yanlış tahminler için:
   mistakeCount++;
   updateHearts();
   if (mistakeCount >= MAX_MISTAKES) {
-    // YALNIZCA cevaplar ve yeni oyun butonu olan Swal göster, başka puan/süre bildirimine gerek yok!
     const answersHTML = getAllAnswersHTML();
+    let modeText;
+    switch(currentGameMode) {
+      case 'easy':
+        modeText = 'Easy Mode';
+        break;
+      case 'normal':
+        modeText = 'Normal Mode';
+        break;
+      case 'hard':
+        modeText = 'Hard Mode';
+        break;
+      default:
+        modeText = 'Normal Mode';
+    }
+    
     Swal.fire({
       icon: 'error',
-      title: 'Oyun Bitti',
+      title: 'Game Over',
       html: `
+        <div style="margin-bottom: 1rem;">
+          <p><strong>Mode:</strong> ${modeText}</p>
+          <p>You made 5 mistakes. All answers are shown below.</p>
+        </div>
         <div style="max-height:350px; overflow:auto; margin-bottom:1em;">
           ${answersHTML}
         </div>
-        <div>5 hata yaptınız. Tüm cevaplar yukarıda gösteriliyor.</div>
       `,
-      confirmButtonText: 'Yeniden Başla',
+      confirmButtonText: 'Restart',
       width: '650px'
     }).then(() => {
-      resetGame(); // Sadece oyunu sıfırla!
+      resetGame();
     });
     return;
   }
 
-  // 3'ü aynı, 1'i farklı gruplandırma
   const groupCountMap = {};
   for (const group of groupValues) {
     groupCountMap[group] = (groupCountMap[group] || 0) + 1;
@@ -417,20 +501,19 @@ function handleConfirm() {
   if (groupEntries.length === 2 && groupEntries.some(([_, count]) => count === 3)) {
     Swal.fire({
       icon: 'error',
-      title: 'Yanlış Tahmin',
-      text: 'Seçtiğiniz 3 kart aynı gruptan fakat 1 kart farklı gruptan',
+      title: 'Wrong Guess',
+      text: 'You selected 3 cards from the same group but 1 card from a different group',
       showConfirmButton: false,
       timer: 1200
     });
     return;
   }
 
-  // Yanlış Gruplandırma
-      Swal.fire({
-      icon: 'error',
-      title: 'Yanlış Tahmin',
-      text: 'Yanlış gruplandırma',
-      showConfirmButton: false,
-      timer: 1200
-    });
+  Swal.fire({
+    icon: 'error',
+    title: 'Wrong Guess',
+    text: 'Incorrect grouping',
+    showConfirmButton: false,
+    timer: 1200
+  });
 }
