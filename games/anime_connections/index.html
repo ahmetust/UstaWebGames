@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Connection Game</title>
+    <link rel="stylesheet" href="/games/anime_connections/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="main-layout">
+        <!-- SOL PANEL: NASIL OYNANIR -->
+        <aside class="how-to-play">
+            <h2><i class="fas fa-info-circle"></i> Nasıl Oynanır?</h2>
+            <ul>
+                <li>16 Karakteri 4'lü gruplar halinde <strong>benzer özelliklerine göre</strong> eşleştirin.</li>
+                <li>Her seferinde 4 kart seçip <b>Onayla</b>'ya tıklayın.</li>
+                <li>Dört grubu da doğru eşleştirirseniz oyunu kazanırsınız</li>
+                <li>Yanlış seçimde can kaybedersiniz (<span style="color:#dc3545;">♥</span>).</li>
+                <li>Tüm canlarınız biterse oyun sonlanır</li>
+                <li>Yeniden başlamak için <b>Yeni Oyun</b>'a basabilirsiniz.</li>
+                <li>Yardım almak için ipucu butonuna basabilirsiniz</li>
+                <li>İpucu seçili karakterleri sıfırlayıp aynı grup içerisindeki 2 karakteri otomatik olarak seçer.</li>
+                <li>Her yeni oyunda yalnızca 1 ipucu alma hakkı vardır.</li>
+            </ul>
+        </aside>
+
+        <!-- ORTA PANEL: OYUN ALANI -->
+        <div class="game-container">
+            <header>
+                <h1><i class="fas fa-gamepad"></i> Anime Connection</h1>
+            </header>
+            <div id="group-container" class="grid-container"></div>
+            <div id="matched-groups" class="matches-container">
+                <h2><i class="fas fa-trophy"></i> Matched Groups</h2>
+            </div>
+        </div>
+
+        <!-- SAĞ PANEL: OYUN KONTROLLERİ -->
+        <aside class="controls-panel">
+            <h2><i class="fas fa-sliders-h"></i> Oyun Kontrolleri</h2>
+            <div class="control-buttons-preview">
+                <button id="confirm-btn" class="game-btn confirm" disabled>
+                    <i class="fas fa-check"></i> Onayla
+                </button>
+                <button id="hint-btn" class="game-btn hint">
+                    <i class="fas fa-lightbulb"></i> İpucu
+                </button>
+                <div id="hearts-container" style="text-align:center; margin-bottom:1rem;"></div>
+                <button id="newgame-btn" class="game-btn primary">
+                    <i class="fas fa-sync-alt"></i> Yeni Oyun
+                </button>
+            </div>
+        </aside>
+    </div>
+    <script src="/games/anime_connections/app.js"></script>
+</body>
+</html>

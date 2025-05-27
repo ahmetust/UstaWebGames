@@ -1,0 +1,537 @@
+/* Genel Stiller */
+:root {
+    --primary-color: #4a6fa5;
+    --secondary-color: #ff7e5f;
+    --dark-color: #2f1f1f;
+    --light-color: #f8f9fa;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --card-bg: #ffffff;
+    --card-hover: #8acd15;
+    --selected-color: #069304;
+    --matched-bg: #2f1f1f;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+   /*  background-color: var(--dark-color); */
+    background: linear-gradient(135deg, #6b99a1 0%, #2084c7 50%, #040669 100%);
+    color: var(--light-color);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 15px; /* Küçültüldü */
+    line-height: 1.5; /* Küçültüldü */
+}
+
+
+.main-layout {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 15px;
+}
+
+
+
+/* Sağ Panel: Kontroller */
+.controls-panel {
+    background: rgba(255,255,255,0.95);
+    color: #2f1f1f;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.09);
+    padding: 28px 22px 22px 22px;
+    max-width: 300px;
+    min-width: 170px;
+    width: 100%;
+    font-size: 1rem;
+    line-height: 1.7;
+    position: sticky;
+    top: 40px;
+    display: block;
+    z-index: 2;
+    margin-left: 0;
+    margin-right: 0;
+    /* Sağda dursun */
+}
+
+.controls-panel h2 {
+    font-size: 1.14rem;
+    color: #e67e22;
+    margin-bottom: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.control-buttons-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.controls-desc {
+    margin-left: 0.7em;
+    margin-bottom: 0;
+    font-size: 0.98em;
+    color: #222;
+}
+.controls-desc li {
+    margin-bottom: 0.55em;
+}
+
+.how-to-play {
+    background: rgba(255,255,255,0.95);
+    color: #2f1f1f;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.09);
+    padding: 28px 22px 22px 22px;
+    max-width: 300px;
+    min-width: 210px;
+    width: 100%;
+    font-size: 1rem;
+    line-height: 1.7;
+    position: sticky;
+    top: 40px;
+    /* Responsive için gizleme: */
+    display: block;
+    z-index: 2;
+}
+
+.how-to-play h2 {
+    font-size: 1.21rem;
+    color: #4a6fa5;
+    margin-bottom: 9px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.how-to-play ul {
+    margin-left: 1em;
+    margin-bottom: 0;
+}
+
+.how-to-play li {
+    margin-bottom: 0.45em;
+}
+        
+.game-container {
+    width: 100%;
+    max-width: 720px; /* Küçültüldü */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px; /* Küçültüldü */
+}
+
+header {
+    text-align: center;
+    margin-bottom: 12px; /* Küçültüldü */
+}
+
+header h1 {
+    font-size: 1.98rem; /* Küçültüldü */
+    color: var(--light-color);
+    margin-bottom: 4px; /* Küçültüldü */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Küçültüldü */
+}
+
+header .subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.81rem; /* Küçültüldü */
+}
+
+/* Grid Container */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px; /* Küçültüldü */
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 12px; /* Küçültüldü */
+    border-radius: 10px; /* Küçültüldü */
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2); /* Küçültüldü */
+}
+
+/* Kart Stilleri */
+.card {
+    background-color: var(--card-bg);
+ /*    background: linear-gradient(120deg, #fff 80%, #073c6d 100%); */
+    border-radius: 7px; /* Küçültüldü */
+    overflow: hidden;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* Küçültüldü */
+    position: relative;
+}
+
+.card .box {
+    width: 100%;
+    aspect-ratio: 225 / 350;
+    border-radius: 5px 5px 0 0; /* Küçültüldü */
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.card p {
+    padding: 5px; /* Küçültüldü */
+    font-weight: 600;
+    color: var(--dark-color);
+    font-size: 0.72rem; /* Küçültüldü */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card:hover {
+    transform: translateY(-3px); /* Küçültüldü */
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25); /* Küçültüldü */
+    /* background-color: var(--card-hover); */
+    background: linear-gradient(135deg, #7bb909 50%, #04e084 100%);
+}
+
+.card:hover img {
+    transform: scale(1.02); /* Küçültüldü */
+}
+
+/* Seçili Kart */
+.selected {
+    outline: 2px solid var(--selected-color);
+    background-color: var(--selected-color);
+    transform: scale(1.01); /* Küçültüldü */
+}
+
+.selected p {
+    color: white;
+}
+
+/* Butonlar */
+.controls {
+    display: flex;
+    gap: 10px; /* Küçültüldü */
+    margin: 10px 0; /* Küçültüldü */
+}
+
+.game-btn {
+    padding: 10px 19px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.19s cubic-bezier(.4,2,.49,.99);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    box-shadow: 0 2px 9px rgba(50, 50, 190, 0.08);
+    background: linear-gradient(90deg, #e0e7ff 0%, #fff 100%);
+    color: #1d3557;
+    letter-spacing: 0.01em;
+    outline: none;
+    border: 1.5px solid #dae2ed;
+}
+
+.game-btn i {
+    font-size: 1.2em;
+}
+
+.game-btn.primary {
+    background: linear-gradient(90deg, #4a6fa5 0%, #2084c7 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 2px 9px rgba(74, 111, 165, 0.16);
+}
+.game-btn.primary:hover {
+    background: linear-gradient(90deg, #274d74 0%, #0693e3 100%);
+}
+
+.game-btn.confirm {
+    background: linear-gradient(90deg, #28a745 25%, #69e669 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 2px 9px rgba(40, 167, 69, 0.13);
+}
+.game-btn.confirm:hover:not(:disabled) {
+    background: linear-gradient(90deg, #218838 25%, #4adb4a 100%);
+}
+
+.game-btn.confirm:disabled {
+    background: #b8c2cc;
+    cursor: not-allowed;
+    opacity: 0.7;
+    color: #fff;
+}
+
+.game-btn.hint {
+    background: linear-gradient(90deg, #ffca28 0%, #ffe082 100%);
+    color: #7b5e00;
+    border: none;
+    box-shadow: 0 2px 9px rgba(255, 202, 40, 0.13);
+}
+.game-btn.hint:hover:not(:disabled) {
+    background: linear-gradient(90deg, #ffc107 0%, #fff176 100%);
+    color: #634700;
+}
+
+.game-btn:active {
+    transform: scale(0.98);
+}
+
+.game-btn:disabled,
+.game-btn.hint:disabled {
+    background: #e0e0e0 !important;
+    color: #aaa !important;
+    border: 1.5px solid #ccc !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+    box-shadow: none !important;
+}
+.game-btn.hint:disabled i,
+.game-btn:disabled i {
+    color: #aaa !important;
+}
+
+
+.primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.primary:hover {
+    background-color: #3a5a8f;
+    transform: translateY(-1px);
+}
+
+.confirm {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.confirm:hover:not(:disabled) {
+    background-color: #218838;
+    transform: translateY(-1px);
+}
+
+.confirm:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Eşleşen Gruplar */
+.matches-container {
+    width: 100%;
+    background-color: var(--matched-bg);
+    padding: 12px; /* Küçültüldü */
+    border-radius: 10px; /* Küçültüldü */
+    margin-top: 12px; /* Küçültüldü */
+}
+
+.matches-container h2 {
+    color: var(--light-color);
+    margin-bottom: 10px; /* Küçültüldü */
+    font-size: 1.17rem; /* Küçültüldü */
+    text-align: center;
+}
+
+.matched-group {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 7px; /* Küçültüldü */
+    padding: 10px; /* Küçültüldü */
+    margin-bottom: 10px; /* Küçültüldü */
+    border-left: 2px solid var(--selected-color); /* Küçültüldü */
+}
+
+.feature-info {
+    color: var(--selected-color);
+    font-weight: 700;
+    font-size: 0.9rem; /* Küçültüldü */
+    margin-bottom: 7px; /* Küçültüldü */
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Küçültüldü */
+}
+
+.matched-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); /* Küçültüldü */
+    gap: 7px; /* Küçültüldü */
+}
+
+
+.card-answers {
+  width: 80px;
+  display: inline-block;
+  vertical-align: top;
+  margin: 0 4px;
+  text-align: center;
+  word-break: break-word;
+  justify-content: center;
+}
+.card-answers .card-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 4px;
+  border: 1px solid #ccc;
+  justify-content: center;
+}
+.card-answers .card-name {
+  font-size: 0.85em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 76px;
+  display: block;
+  justify-content: center;
+}
+
+
+#hearts-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 4px;
+    /* Responsive font size ayarı */
+    font-size: 1.5rem;
+    /* Kalpler taşarsa scroll olsun */
+    overflow-x: auto;
+    white-space: nowrap;
+    min-height: 2.2em;
+    margin: 0 auto;
+    width: 300px;   /* 5 kalp rahat sığar */
+    max-width: 100%;
+    padding: 2px 0 8px 0;
+}
+
+#hearts-container span,
+#hearts-container i,
+#hearts-container .heart {
+    color: #dc3545;
+    margin: 0 2px;
+    font-size: inherit;
+    vertical-align: middle;
+    /* Düzgün hizalama için */
+    line-height: 1;
+    transition: font-size 0.2s;
+}
+
+@media (max-width: 600px) {
+    #hearts-container {
+        font-size: 1.15rem;
+        gap: 2px;
+        width: 98px;  /* Mobilde 5 kalp yine sığar */
+        min-height: 1.8em;
+    }
+}
+
+
+/* Responsive Düzen */
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    header h1 {
+        font-size: 1.62rem; /* Küçültüldü */
+    }
+    
+    .controls {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .game-btn {
+        justify-content: center;
+    }
+    
+    @media (max-width: 1100px) {
+        .main-layout {
+            gap: 16px; 
+            }
+        .how-to-play {
+            max-width: 200px; font-size: 0.95rem; 
+            }
+        }
+
+    @media (max-width: 900px) {
+        .main-layout {
+            flex-direction: column; align-items: stretch; 
+            }
+        .how-to-play { 
+            max-width: 100%; 
+            min-width: 0;
+            margin-bottom: 18px;
+            position: static;
+            }
+        }
+    @media (max-width: 600px) {
+        .how-to-play {
+        font-size: 0.93rem;
+        padding: 20px 12px 12px 12px;
+        }
+    }
+}
+
+@media (max-width: 1100px) {
+    .main-layout {
+        gap: 16px; 
+    }
+    .controls-panel {
+        max-width: 170px; font-size: 0.98rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .main-layout {
+        flex-direction: column; align-items: stretch; 
+    }
+    .controls-panel { 
+        max-width: 100%; 
+        min-width: 0;
+        margin-bottom: 18px;
+        position: static;
+        order: 3;
+    }
+}
+
+@media (max-width: 600px) {
+    .controls-panel {
+        font-size: 0.95rem;
+        padding: 20px 12px 12px 12px;
+    }
+}
+
+
+
