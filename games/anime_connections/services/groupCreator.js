@@ -1,12 +1,64 @@
 // services/groupCreator.js
-// Ana grup oluşturma mantığı
+// Ana grup oluşturma mantığı - Esnek trait hafızası ile
 
 const { analyzeCharacterFeatures, evaluateTraitDifficulty } = require('./characterAnalyzer');
 const { shuffleArray, selectCharactersForFeature } = require('./characterSelector');
 const { validateGroups, printDetailedResults } = require('./groupValidator');
 
-// Global trait usage tracking
-let globalTraitUsage = new Map();
+// Trait history - son 6 oyunu takip eder
+let traitHistory = [];
+const MEMORY_SIZE = 20; // Son kaç oyunu hatırlayacak
+
+/**
+ * Trait'in son kullanım sıklığına göre weight hesaplar
+ * @param {string} trait - Trait adı
+ * @returns {number} Weight değeri (1.0 = normal, daha düşük = daha az şans)
+ */
+const calculateTraitWeight = (trait) => {
+  const recentUsages = traitHistory.filter(t => t === trait).length;
+  
+  // Son 6 oyunda hiç çıkmadıysa normal weight
+  if (recentUsages === 0) return 1.0;
+  
+  // Her kullanım için weight'i azalt ama tamamen sıfırlamayın
+  // 1 kullanım = 0.7, 2 kullanım = 0.4, 3+ kullanım = 0.2
+  switch (recentUsages) {
+    case 1: return 0.4;
+    case 2: return 0.2;
+    default: return 0; // 3 veya daha fazla
+  }
+};
+
+/**
+ * Trait history'ye yeni trait ekler
+ * @param {string} trait - Eklenen trait
+ */
+const addToTraitHistory = (trait) => {
+  traitHistory.push(trait);
+  
+  // Hafıza boyutunu aş, eski olanları sil
+  if (traitHistory.length > MEMORY_SIZE) {
+    traitHistory = traitHistory.slice(-MEMORY_SIZE);
+  }
+};
+
+/**
+ * Trait history durumunu gösterir
+ */
+const printTraitHistory = () => {
+  if (traitHistory.length > 0) {
+    console.log(`\n=== TRAIT HAFIZASI (Son ${traitHistory.length} oyun) ===`);
+    console.log(`Son çıkan traitler: ${traitHistory.join(' -> ')}`);
+    
+    // Her trait'in weight'ini göster
+    const uniqueTraits = [...new Set(traitHistory)];
+    uniqueTraits.forEach(trait => {
+      const count = traitHistory.filter(t => t === trait).length;
+      const weight = calculateTraitWeight(trait);
+      console.log(`  ${trait}: ${count} kez, weight: ${weight.toFixed(1)}`);
+    });
+  }
+};
 
 /**
  * Bias-free karakter grupları oluşturur
@@ -21,6 +73,7 @@ const createCharacterGroups = (characters, selectedFeatures, groupSize = 4) => {
   let finalResults = null;
 
   console.log("\n=== BIAS-FREE KARAKTER GRUPLANDIRMA BAŞLADI ===");
+  printTraitHistory();
 
   while (!finalResults && attempt < maxAttempts) {
     attempt++;
@@ -110,7 +163,7 @@ const createCharacterGroups = (characters, selectedFeatures, groupSize = 4) => {
       }
     }
 
-    // Trait-based gruplar için bias-free approach with global usage tracking
+    // Trait-based gruplar için gerçek weighted random selection
     if (Object.keys(groupsCreated).length === 2) {
       const availableTraits = Object.keys(featureStats["Traits"] || {})
         .filter(t => featureStats["Traits"][t].size >= groupSize)
@@ -118,28 +171,64 @@ const createCharacterGroups = (characters, selectedFeatures, groupSize = 4) => {
           trait,
           difficulty: evaluateTraitDifficulty(trait, featureStats),
           availableCount: featureStats["Traits"][trait].size,
-          usageCount: globalTraitUsage.get(trait) || 0,
-          randomScore: Math.random()
-        }))
-        .sort((a, b) => {
-          // Önce kullanım sayısına göre (az kullanılanlar öncelikli)
-          if (a.usageCount !== b.usageCount) return a.usageCount - b.usageCount;
-          // Sonra zorluğa göre
-          if (a.difficulty !== b.difficulty) return a.difficulty - b.difficulty;
-          // Son olarak random score'a göre
-          return b.randomScore - a.randomScore;
-        });
+          weight: calculateTraitWeight(trait)
+        }));
+
+      // Zorluğa göre ayır
+      const easyTraits = availableTraits.filter(t => t.difficulty <= 2);
+      const hardTraits = availableTraits.filter(t => t.difficulty > 2);
 
       let traitGroupsCreated = 0;
       const difficultyLabels = ["Zor Seçim", "Çok Zor Seçim"];
+      const selectedTraitsThisRound = [];
 
-      for (const traitInfo of availableTraits) {
-        if (traitGroupsCreated >= 2) break;
+      // Her zorluk seviyesi için weighted random selection
+      const traitPools = [easyTraits, hardTraits];
+      
+      for (let poolIndex = 0; poolIndex < traitPools.length && traitGroupsCreated < 2; poolIndex++) {
+        const pool = traitPools[poolIndex];
+        if (pool.length === 0) continue;
 
+        // Weighted random selection
+        let selectedTrait = null;
+        let attempts = 0;
+        const maxSelectionAttempts = 50;
+
+        while (!selectedTrait && attempts < maxSelectionAttempts) {
+          attempts++;
+          
+          // Weight toplamını hesapla
+          const totalWeight = pool.reduce((sum, t) => sum + t.weight, 0);
+          
+          if (totalWeight <= 0) {
+            // Tüm weight'ler 0 ise random seç
+            selectedTrait = pool[Math.floor(Math.random() * pool.length)];
+            break;
+          }
+
+          // Random değer seç
+          let randomValue = Math.random() * totalWeight;
+          
+          // Weighted selection
+          for (const traitInfo of pool) {
+            randomValue -= traitInfo.weight;
+            if (randomValue <= 0) {
+              selectedTrait = traitInfo;
+              break;
+            }
+          }
+        }
+
+        if (!selectedTrait) {
+          // Fallback - weight'e bakmadan random seç
+          selectedTrait = pool[Math.floor(Math.random() * pool.length)];
+        }
+
+        // Seçilen trait ile grup oluşturmayı dene
         const selected = selectCharactersForFeature(
           characters,
           "Traits",
-          traitInfo.trait,
+          selectedTrait.trait,
           groupSize,
           tempUsedCharacters,
           tempMainFeatures,
@@ -150,25 +239,33 @@ const createCharacterGroups = (characters, selectedFeatures, groupSize = 4) => {
           const difficulty = difficultyLabels[traitGroupsCreated];
           groupsCreated[difficulty] = {
             feature: "Traits",
-            value: traitInfo.trait,
+            value: selectedTrait.trait,
             characters: selected
           };
           
           selected.forEach(c => tempUsedCharacters.add(c.Name));
-          tempMainFeatures.add(`Traits:${traitInfo.trait}`);
+          tempMainFeatures.add(`Traits:${selectedTrait.trait}`);
           
-          // Global trait usage'ı güncelle
-          globalTraitUsage.set(traitInfo.trait, (globalTraitUsage.get(traitInfo.trait) || 0) + 1);
-          
+          selectedTraitsThisRound.push(selectedTrait.trait);
           traitGroupsCreated++;
           
           if (attempt === 1) {
-            console.log(`✓ ${difficulty}: Traits=${traitInfo.trait} (difficulty: ${traitInfo.difficulty}, usage: ${globalTraitUsage.get(traitInfo.trait)})`);
+            console.log(`✓ ${difficulty}: Traits=${selectedTrait.trait} (difficulty: ${selectedTrait.difficulty}, weight: ${selectedTrait.weight.toFixed(1)})`);
           }
+        } else {
+          // Bu trait çalışmadı, pool'dan çıkar ve tekrar dene
+          const traitIndex = pool.indexOf(selectedTrait);
+          if (traitIndex > -1) {
+            pool.splice(traitIndex, 1);
+          }
+          poolIndex--; // Bu pool'u tekrar dene
+          break;
         }
       }
 
       if (traitGroupsCreated === 2 && validateGroups(groupsCreated, false)) {
+        // Başarılı grup oluşturuldu, trait history'yi güncelle
+        selectedTraitsThisRound.forEach(trait => addToTraitHistory(trait));
         finalResults = groupsCreated;
       }
     }
@@ -190,6 +287,26 @@ const createCharacterGroups = (characters, selectedFeatures, groupSize = 4) => {
   return finalResults;
 };
 
+/**
+ * Trait history'yi temizler (test amaçlı)
+ */
+const clearTraitHistory = () => {
+  traitHistory = [];
+  console.log("Trait hafızası temizlendi.");
+};
+
+/**
+ * Trait history'yi manuel olarak ayarlar (test amaçlı)
+ * @param {Array} newHistory - Yeni history array'i
+ */
+const setTraitHistory = (newHistory) => {
+  traitHistory = newHistory.slice(-MEMORY_SIZE); // Sadece son MEMORY_SIZE kadarını al
+  console.log(`Trait hafızası ayarlandı: ${traitHistory.join(' -> ')}`);
+};
+
 module.exports = {
-  createCharacterGroups
+  createCharacterGroups,
+  clearTraitHistory,
+  setTraitHistory,
+  printTraitHistory
 };
