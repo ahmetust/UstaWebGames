@@ -3,7 +3,7 @@
 // Tüm modülleri import et
 const { analyzeCharacterFeatures, checkCharacterIsValid, evaluateTraitDifficulty } = require('./characterAnalyzer');
 const { shuffleArray, selectCharactersForFeature } = require('./characterSelector');
-const { validateGroups, printDetailedResults, checkGroupOverlaps } = require('./groupValidator.js');
+const { validateGroups, printDetailedResults, checkGroupOverlaps } = require('./groupValidator');
 const { createCharacterGroups } = require('./groupCreator');
 
 /**

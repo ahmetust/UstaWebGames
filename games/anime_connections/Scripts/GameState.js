@@ -9,10 +9,8 @@ export class GameState {
     this.mistakeCount = 0;
     this.currentGameMode = GAME_MODES.NORMAL;
     this.gameStartTime = null;
-    this.persistentPreviousSelections = new Map();
   }
 
-  
   reset() {
     this.selectedCards = [];
     this.hintUsed = false;
@@ -35,7 +33,6 @@ export class GameState {
     if (this.selectedCards.length >= GAME_CONFIG.MAX_SELECTED_CARDS) {
       return { action: 'limit_reached', canSelect: false };
     }
-    
     this.selectedCards.push(name);
     return { action: 'added', canSelect: true };
   }

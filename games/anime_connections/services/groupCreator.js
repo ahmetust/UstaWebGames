@@ -3,7 +3,7 @@
 
 const { analyzeCharacterFeatures, evaluateTraitDifficulty } = require('./characterAnalyzer');
 const { shuffleArray, selectCharactersForFeature } = require('./characterSelector');
-const { validateGroups, printDetailedResults } = require('./groupValidator.js');
+const { validateGroups, printDetailedResults } = require('./groupValidator');
 
 /**
  * Bias-free karakter grupları oluşturur
