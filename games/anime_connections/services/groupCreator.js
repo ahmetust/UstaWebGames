@@ -5,6 +5,9 @@ const { analyzeCharacterFeatures, evaluateTraitDifficulty } = require('./charact
 const { shuffleArray, selectCharactersForFeature } = require('./characterSelector');
 const { validateGroups, printDetailedResults } = require('./groupValidator');
 
+// Global trait usage tracking
+let globalTraitUsage = new Map();
+
 /**
  * Bias-free karakter grupları oluşturur
  * @param {Array} characters - Tüm karakterler
@@ -107,7 +110,7 @@ const createCharacterGroups = (characters, selectedFeatures, groupSize = 4) => {
       }
     }
 
-    // Trait-based gruplar için bias-free approach
+    // Trait-based gruplar için bias-free approach with global usage tracking
     if (Object.keys(groupsCreated).length === 2) {
       const availableTraits = Object.keys(featureStats["Traits"] || {})
         .filter(t => featureStats["Traits"][t].size >= groupSize)
@@ -115,11 +118,15 @@ const createCharacterGroups = (characters, selectedFeatures, groupSize = 4) => {
           trait,
           difficulty: evaluateTraitDifficulty(trait, featureStats),
           availableCount: featureStats["Traits"][trait].size,
+          usageCount: globalTraitUsage.get(trait) || 0,
           randomScore: Math.random()
         }))
         .sort((a, b) => {
-          // Önce zorluğa göre, sonra random score'a göre sırala
+          // Önce kullanım sayısına göre (az kullanılanlar öncelikli)
+          if (a.usageCount !== b.usageCount) return a.usageCount - b.usageCount;
+          // Sonra zorluğa göre
           if (a.difficulty !== b.difficulty) return a.difficulty - b.difficulty;
+          // Son olarak random score'a göre
           return b.randomScore - a.randomScore;
         });
 
@@ -149,10 +156,14 @@ const createCharacterGroups = (characters, selectedFeatures, groupSize = 4) => {
           
           selected.forEach(c => tempUsedCharacters.add(c.Name));
           tempMainFeatures.add(`Traits:${traitInfo.trait}`);
+          
+          // Global trait usage'ı güncelle
+          globalTraitUsage.set(traitInfo.trait, (globalTraitUsage.get(traitInfo.trait) || 0) + 1);
+          
           traitGroupsCreated++;
           
           if (attempt === 1) {
-            console.log(`✓ ${difficulty}: Traits=${traitInfo.trait} (difficulty: ${traitInfo.difficulty})`);
+            console.log(`✓ ${difficulty}: Traits=${traitInfo.trait} (difficulty: ${traitInfo.difficulty}, usage: ${globalTraitUsage.get(traitInfo.trait)})`);
           }
         }
       }
