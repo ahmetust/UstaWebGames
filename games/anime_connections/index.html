@@ -13,6 +13,7 @@
     <div class="main-layout">
         <!-- SOL PANEL: NASIL OYNANIR -->
         <aside class="how-to-play">
+            <h1><i class="fas fa-gamepad"></i> Anime Connection</h1>
             <h2><i class="fas fa-info-circle"></i>How to Play?</h2>
             <ul>
                 <li>Match 16 characters into groups of 4 based on their <strong>similar attributes</strong>.</li>
@@ -25,62 +26,70 @@
                 <li>The hint will reset your current selection and automatically select 2 characters from the same group.</li>
                 <li>You can use only one hint per game.</li>
             </ul>
-                <!-- Zorluk Seviyesi Seçimi -->
-                            <div class="difficulty-selector">
-                                <h3><i class="fas fa-cog"></i>Game Difficulty</h3>
-                                <div class="difficulty-options">
-                                    <label class="difficulty-option">
-                                        <input type="radio" name="difficulty" value="easy">
-                                        <span class="difficulty-label easy">
-                                            <i class="fas fa-star"></i> Easy
-                                            <small>Most Popular 50 Animes</small>
-                                        </span>
-                                    </label>
-                                    <label class="difficulty-option">
-                                        <input type="radio" name="difficulty" value="normal" checked>
-                                        <span class="difficulty-label normal">
-                                            <i class="fas fa-balance-scale"></i> Normal
-                                            <small>Most Popular 100 Animes</small>
-                                        </span>
-                                    </label>
-                                    <label class="difficulty-option">
-                                        <input type="radio" name="difficulty" value="hard">
-                                        <span class="difficulty-label hard">
-                                            <i class="fas fa-fire"></i> Hard
-                                            <small>All Animes</small>
-                                        </span>
-                                    </label>
-                                </div>
-                            </div>
-                        </aside>
+            <!-- Zorluk Seviyesi Seçimi -->
+            <div class="difficulty-selector">
+                <h3><i class="fas fa-cog"></i>Game Difficulty</h3>
+                <div class="difficulty-options">
+                    <label class="difficulty-option">
+                        <input type="radio" name="difficulty" value="easy">
+                        <span class="difficulty-label easy">
+                            <i class="fas fa-star"></i> Easy
+                            <small>Most Popular 50 Animes</small>
+                        </span>
+                    </label>
+                    <label class="difficulty-option">
+                        <input type="radio" name="difficulty" value="normal" checked>
+                        <span class="difficulty-label normal">
+                            <i class="fas fa-balance-scale"></i> Normal
+                            <small>Most Popular 100 Animes</small>
+                        </span>
+                    </label>
+                    <label class="difficulty-option">
+                        <input type="radio" name="difficulty" value="hard">
+                        <span class="difficulty-label hard">
+                            <i class="fas fa-fire"></i> Hard
+                            <small>All Animes</small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </aside>
 
         <!-- ORTA PANEL: OYUN ALANI -->
         <div class="game-container">
-            <header>
-                <h1><i class="fas fa-gamepad"></i> Anime Connection</h1>
-            </header>
             <div id="group-container" class="grid-container"></div>
             <div id="matched-groups" class="matches-container">
                 <h2><i class="fas fa-trophy"></i> Matched Groups</h2>
             </div>
         </div>
 
-        <!-- SAĞ PANEL: OYUN KONTROLLERİ -->
-        <aside class="controls-panel">
-            <h2><i class="fas fa-sliders-h"></i> Game Controls</h2>
-            <div class="control-buttons-preview">
-                <button id="confirm-btn" class="game-btn confirm" disabled>
-                    <i class="fas fa-check"></i> Confirm
+        <!-- SAĞ PANEL GRUBU: KONTROLLER + KARAKTER PREVIEW ALT ALTA -->
+        <div class="sidebar-panel-group">
+            <aside class="controls-panel">
+                <h2><i class="fas fa-sliders-h"></i> Game Controls</h2>
+                <div class="control-buttons-preview">
+                    <button id="newgame-btn" class="game-btn primary">
+                        <i class="fas fa-sync-alt"></i> New Game
+                    </button>
+                    <div id="hearts-container" style="text-align:center; margin-bottom:1rem;"></div>
+                    <button id="hint-btn" class="game-btn hint">
+                        <i class="fas fa-lightbulb"></i> Hint
+                    </button>
+                    <button id="confirm-btn" class="game-btn confirm" disabled>
+                        <i class="fas fa-check"></i> Confirm
+                    </button>
+                </div>
+            </aside>
+            <div class="character-preview-panel">
+                <h3>
+                <button id="toggle-preview-btn" class="toggle-preview" title="Preview On/Off">
+                    <i class="fas fa-eye"></i>
                 </button>
-                <button id="hint-btn" class="game-btn hint">
-                    <i class="fas fa-lightbulb"></i> Hint
-                </button>
-                <div id="hearts-container" style="text-align:center; margin-bottom:1rem;"></div>
-                <button id="newgame-btn" class="game-btn primary">
-                    <i class="fas fa-sync-alt"></i> New Game
-                </button>
+                Character Preview <span id="preview-status-text" style="font-weight:600;color:#16a34a;">On</span>
+                </h3>
+                <div id="character-preview"></div>
             </div>
-        </aside>
+        </div>
     </div>
     <script type="module" src="/games/anime_connections/Scripts/GameConfig.js"></script>
     <script type="module" src="/games/anime_connections/Scripts/GameState.js"></script>

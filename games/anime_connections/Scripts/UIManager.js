@@ -10,8 +10,62 @@ export class UIManager {
       hintBtn: () => document.getElementById("hint-btn"),
       heartsContainer: () => document.getElementById('hearts-container'),
       modeIndicator: () => document.getElementById('mode-indicator'),
-      characterCount: () => document.getElementById('character-count')
+      characterCount: () => document.getElementById('character-count'),
+      previewContainer: () => document.getElementById('character-preview'),
+      togglePreviewBtn: () => document.getElementById('toggle-preview-btn')
     };
+    this.isPreviewEnabled = true;
+  }
+
+  initPreviewToggler() {
+    const toggleBtn = this.elements.togglePreviewBtn();
+    const previewContainer = this.elements.previewContainer();
+    const statusText = document.getElementById('preview-status-text');
+    if (!toggleBtn || !previewContainer || !statusText) return;
+
+    toggleBtn.addEventListener("click", () => {
+      this.isPreviewEnabled = !this.isPreviewEnabled;
+      if (this.isPreviewEnabled) {
+        toggleBtn.innerHTML = `<i class="fas fa-eye"></i>`;
+        statusText.textContent = "On";
+        statusText.style.color = "#16a34a";
+        // paneli temizle, hoverlarda tekrar açılabilsin
+      } else {
+        this.hideCharacterPreview(); // paneli tamamen kapat
+        toggleBtn.innerHTML = `<i class="fas fa-eye-slash"></i>`;
+        statusText.textContent = "Off";
+        statusText.style.color = "#dc2626";
+      }
+    });
+  }
+
+ showCharacterPreview(character) {
+    if (!this.isPreviewEnabled) return;
+    const previewContainer = this.elements.previewContainer();
+    if (!previewContainer) return;
+
+    previewContainer.innerHTML = `
+      <div class="preview-content">
+        <div class="preview-image">
+          <img src="${character.Resimler}" alt="${character.Name}" />
+        </div>
+        <div class="preview-info">
+          <h3>${character.Name}</h3>
+        </div>
+      </div>
+    `;
+    previewContainer.style.display = 'block';
+  }
+
+    // HOVER ÇIKINCA KAPATMAK — ama panel devre dışı ise zaten pasif
+  hideCharacterPreview() {
+    const previewContainer = this.elements.previewContainer();
+    if (!previewContainer) return;
+    if (!this.isPreviewEnabled) {
+      previewContainer.style.display = 'none';
+      return;
+    }
+    previewContainer.style.display = 'none';
   }
 
   updateModeIndicator(currentGameMode) {
@@ -95,6 +149,15 @@ export class UIManager {
     const name = document.createElement("p");
     name.textContent = character.Name;
     card.appendChild(name);
+
+    // Hover olaylarını ekle
+    card.addEventListener('mouseenter', () => {
+      this.showCharacterPreview(character);
+    });
+
+    card.addEventListener('mouseleave', () => {
+      this.hideCharacterPreview();
+    });
 
     return card;
   }

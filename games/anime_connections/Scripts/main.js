@@ -167,5 +167,6 @@ class Game {
 
 // Sayfa yüklendiğinde oyunu başlat
 document.addEventListener("DOMContentLoaded", () => {
-  new Game();
+  const game = new Game();
+  game.ui.initPreviewToggler();
 });
