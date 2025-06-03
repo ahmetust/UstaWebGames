@@ -1,9 +1,9 @@
 // config/scoring.js - Puan tablosu yapılandırması
 const dizi = { 
-    "puan1": ["Anime Time Period","Anime Source","Anime Year","Anime MAL Score","Role","Anime Theme","Anime Demographic", "Anime Popularity"],
-    "puan2": ["Anime Name","Eye Color","Hair Color","Clothes","Age"],
+    "puan1": ["Anime Time Period","Anime Year","Anime MAL Score","Anime Theme","Anime Demographic", "Anime Popularity"],
+    "puan2": ["Anime Name","Eye Color","Hair Color","Age","Anime Source"],
     "puan3": [],
-    "puan4": ["Japanese VA","Height","Gender","Siblings"],
+    "puan4": ["Japanese VA","Height","Gender","Clothes"],
     "puan5": [],
     "puan6": [],
     "puan7": [],
