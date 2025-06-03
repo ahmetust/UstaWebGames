@@ -1,7 +1,0 @@
-{
-  "name": "ornek-uygulama",
-  "version": "1.0.0",
-  "bin": "server.js",
-  "scripts": {},
-  "dependencies": {}
-}
